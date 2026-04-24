@@ -87,10 +87,6 @@ if (appDiv) {
           <button id="profileBtn" class="btn-link">Profile</button>
           <button id="logoutBtn" class="btn-link">Logout</button>
         </div>
-
-        <div id="contactActions" style="display: none;">
-          <a class="cta-small whatsapp-btn" href="#" id="whatsappAction">Book on WhatsApp</a>
-        </div>
       </div>
     </nav>
   </div>
@@ -185,9 +181,17 @@ if (appDiv) {
       <h2>Ready to plan a polished, stress-free travel or event experience?</h2>
       <p>Connect with our team and we will create a custom plan for your dates, budget, and goals.</p>
     </div>
-    <div class="contact-actions" id="contactActions">
+    <div id="contactActions" style="display: none;">
       <a class="btn btn-secondary" href="tel:+919876543210">Call +91 98765 43210</a>
     </div>
+  </div>
+</section>
+
+<section class="whatsapp-cta section poster-teal">
+  <div class="container" style="text-align: center;">
+    <h2>Prefer Messaging?</h2>
+    <p style="margin-bottom: 2rem;">Get instant answers to your travel queries directly from our planners.</p>
+    <a class="cta-large whatsapp-btn" href="#" id="whatsappAction" target="_blank" rel="noopener noreferrer">Book on WhatsApp</a>
   </div>
 </section>
 
