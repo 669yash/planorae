@@ -414,7 +414,7 @@ const updateUI = () => {
       whatsappAction.onclick = (e) => {
         e.preventDefault();
         window.showToast("Please login to contact us on WhatsApp.");
-        if (authModal) authModal.style.display = "flex";
+        if (authModal) (authModal as HTMLElement).style.display = "flex";
       };
     }
   }
@@ -483,29 +483,29 @@ const handleGoogleCallback = async (response: any) => {
 
 initGoogleLogin();
 
-if (loginBtn) {
-  loginBtn.onclick = () => {
-    if (authModal) authModal.style.display = "flex";
-    if (loginFormSection) loginFormSection.style.display = "block";
-    if (signupFormSection) signupFormSection.style.display = "none";
-    const otpSection = document.getElementById("otpSection");
-    if (otpSection) otpSection.style.display = "none";
-  };
-}
-
 const openLogin = () => {
-  authModal.style.display = "flex";
-  loginFormSection.style.display = "block";
-  signupFormSection.style.display = "none";
-  document.getElementById("otpSection")!.style.display = "none";
+  if (authModal) (authModal as HTMLElement).style.display = "flex";
+  if (loginFormSection) (loginFormSection as HTMLElement).style.display = "block";
+  if (signupFormSection) (signupFormSection as HTMLElement).style.display = "none";
+  const otpSection = document.getElementById("otpSection");
+  if (otpSection) otpSection.style.display = "none";
 };
 
 const openSignup = () => {
-  authModal.style.display = "flex";
-  loginFormSection.style.display = "none";
-  signupFormSection.style.display = "block";
-  document.getElementById("otpSection")!.style.display = "none";
+  if (authModal) (authModal as HTMLElement).style.display = "flex";
+  if (loginFormSection) (loginFormSection as HTMLElement).style.display = "none";
+  if (signupFormSection) (signupFormSection as HTMLElement).style.display = "block";
+  const otpSection = document.getElementById("otpSection");
+  if (otpSection) otpSection.style.display = "none";
 };
+
+if (loginBtn) {
+  (loginBtn as HTMLElement).onclick = openLogin;
+}
+
+if (signupBtn) {
+  (signupBtn as HTMLElement).onclick = openSignup;
+}
 
 window.addEventListener('hashchange', () => {
   if (window.location.hash === '#login') {
@@ -527,177 +527,206 @@ if (window.location.hash === '#signup') {
   history.replaceState(null, "", window.location.pathname + window.location.search);
 }
 
-signupBtn.onclick = () => {
-  authModal.style.display = "flex";
-  loginFormSection.style.display = "none";
-  signupFormSection.style.display = "block";
-  document.getElementById("otpSection")!.style.display = "none";
-};
+if (profileBtn) {
+  (profileBtn as HTMLElement).onclick = () => {
+    window.location.href = 'src/profile.html';
+  };
+}
 
-profileBtn.onclick = () => {
-  window.location.href = 'src/profile.html';
-};
+if (logoutBtn) {
+  (logoutBtn as HTMLElement).onclick = handleLogout;
+}
 
-logoutBtn.onclick = handleLogout;
-closeAuthModal.onclick = () => {
-  authModal.style.display = "none";
-};
+if (closeAuthModal) {
+  closeAuthModal.onclick = () => {
+    if (authModal) (authModal as HTMLElement).style.display = "none";
+  };
+}
 
-signupForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  console.log("Signup form submitted");
-  const submitBtn = signupForm.querySelector('button[type="submit"]') as HTMLButtonElement;
-  const originalBtnText = submitBtn.textContent;
-  const errorDiv = document.getElementById('signupError') as HTMLElement;
-  
-  try {
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Signing up...";
-    errorDiv.style.display = 'none';
+if (signupForm) {
+  signupForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    console.log("Signup form submitted");
+    const form = signupForm as HTMLFormElement;
+    const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const originalBtnText = submitBtn.textContent;
+    const errorDiv = document.getElementById('signupError') as HTMLElement;
     
-    const username = (document.getElementById("signupUsername") as HTMLInputElement).value;
-    const email = (document.getElementById("signupEmail") as HTMLInputElement).value;
-    const password = (document.getElementById("signupPassword") as HTMLInputElement).value;
-
-    if (!validateEmail(email)) {
-      errorDiv.textContent = "Please enter a valid email address.";
-      errorDiv.style.display = 'block';
-      return;
-    }
-
-    if (!validatePassword(password)) {
-      errorDiv.textContent = "Password does not meet all requirements. Please check the boxes below.";
-      errorDiv.style.display = 'block';
-      return;
-    }
-
-    signupEmail = email;
-
-    console.log("Sending signup request to backend...");
-    const res = await fetch(`${API_BASE_URL}/api/auth/signup`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, email, password })
-    });
-    
-    const data = await res.json();
-    console.log("Signup response:", data);
-    
-    if (res.ok) {
-      errorDiv.textContent = data.message;
-      errorDiv.style.display = 'block';
-      errorDiv.style.color = 'green';
-      signupFormSection.style.display = "none";
-      document.getElementById("otpSection")!.style.display = "block";
-    } else {
-      errorDiv.textContent = data.message || "Signup failed";
-      errorDiv.style.display = 'block';
-    }
-  } catch (error) {
-    console.error("Signup error:", error);
-    errorDiv.textContent = "Could not connect to the server. Please ensure the backend is running.";
-    errorDiv.style.display = 'block';
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = originalBtnText;
-  }
-});
-
-otpForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const submitBtn = otpForm.querySelector('button[type="submit"]') as HTMLButtonElement;
-  const originalBtnText = submitBtn.textContent;
-  const otpErrorDiv = document.getElementById('otpError') as HTMLElement;
-  if (!otpErrorDiv) {
-    const newErrorDiv = document.createElement('div');
-    newErrorDiv.id = 'otpError';
-    newErrorDiv.className = 'error-message';
-    newErrorDiv.style.display = 'none';
-    newErrorDiv.style.marginTop = '1rem';
-    otpForm.appendChild(newErrorDiv);
-  }
-  
-  try {
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Verifying...";
-    otpErrorDiv.style.display = 'none';
-    
-    const otp = (document.getElementById("otpValue") as HTMLInputElement).value;
-    const res = await fetch(`${API_BASE_URL}/api/auth/verify-otp`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: signupEmail, otp })
-    });
-    
-    const data = await res.json();
-    if (res.ok) {
-      otpErrorDiv.textContent = data.message;
-      otpErrorDiv.style.color = 'green';
-      otpErrorDiv.style.display = 'block';
-      document.getElementById("otpSection")!.style.display = "none";
-      document.getElementById("loginFormSection")!.style.display = "block";
-    } else {
-      otpErrorDiv.textContent = data.message || "Verification failed";
-      otpErrorDiv.style.display = 'block';
-    }
-  } catch (error) {
-    console.error("OTP error:", error);
-    otpErrorDiv.textContent = "Could not connect to the server.";
-    otpErrorDiv.style.display = 'block';
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = originalBtnText;
-  }
-});
-
-loginForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const submitBtn = loginForm.querySelector('button[type="submit"]') as HTMLButtonElement;
-  const originalBtnText = submitBtn.textContent;
-  const errorDiv = document.getElementById('loginError') as HTMLElement;
-  
-  try {
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Logging in...";
-    errorDiv.style.display = 'none';
-    
-    const email = (document.getElementById("loginEmail") as HTMLInputElement).value;
-    const password = (document.getElementById("loginPassword") as HTMLInputElement).value;
-
-    if (!validateEmail(email)) {
-      errorDiv.textContent = "Please enter a valid email address.";
-      errorDiv.style.display = 'block';
-      return;
-    }
-
-    const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
-    
-    const data = await res.json();
-    if (res.ok) {
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('username', data.username);
-      updateUI();
-      authModal.style.display = "none";
+    try {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Signing up...";
+      if (errorDiv) errorDiv.style.display = 'none';
       
-      // Check profile completion status after login
-      await window.checkProfileCompletion();
-    } else {
-      errorDiv.textContent = data.message || "Login failed";
-      errorDiv.style.display = 'block';
+      const username = (document.getElementById("signupUsername") as HTMLInputElement).value;
+      const email = (document.getElementById("signupEmail") as HTMLInputElement).value;
+      const password = (document.getElementById("signupPassword") as HTMLInputElement).value;
+
+      if (!validateEmail(email)) {
+        if (errorDiv) {
+          errorDiv.textContent = "Please enter a valid email address.";
+          errorDiv.style.display = 'block';
+        }
+        return;
+      }
+
+      if (!validatePassword(password)) {
+        if (errorDiv) {
+          errorDiv.textContent = "Password does not meet all requirements. Please check the boxes below.";
+          errorDiv.style.display = 'block';
+        }
+        return;
+      }
+
+      signupEmail = email;
+
+      console.log("Sending signup request to backend...");
+      const res = await fetch(`${API_BASE_URL}/api/auth/signup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password })
+      });
+      
+      const data = await res.json();
+      console.log("Signup response:", data);
+      
+      if (res.ok) {
+        if (errorDiv) {
+          errorDiv.textContent = data.message;
+          errorDiv.style.display = 'block';
+          errorDiv.style.color = 'green';
+        }
+        if (signupFormSection) (signupFormSection as HTMLElement).style.display = "none";
+        const otpSection = document.getElementById("otpSection");
+        if (otpSection) otpSection.style.display = "block";
+      } else {
+        if (errorDiv) {
+          errorDiv.textContent = data.message || "Signup failed";
+          errorDiv.style.display = 'block';
+        }
+      }
+    } catch (error) {
+      console.error("Signup error:", error);
+      if (errorDiv) {
+        errorDiv.textContent = "Could not connect to the server. Please ensure the backend is running.";
+        errorDiv.style.display = 'block';
+      }
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalBtnText;
     }
-  } catch (error) {
-    console.error("Login error:", error);
-    errorDiv.textContent = "Could not connect to the server.";
-    errorDiv.style.display = 'block';
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = originalBtnText;
-  }
-});
+  });
+}
+
+if (otpForm) {
+  otpForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = otpForm as HTMLFormElement;
+    const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const originalBtnText = submitBtn.textContent;
+    let otpErrorDiv = document.getElementById('otpError') as HTMLElement;
+    if (!otpErrorDiv) {
+      otpErrorDiv = document.createElement('div');
+      otpErrorDiv.id = 'otpError';
+      otpErrorDiv.className = 'error-message';
+      otpErrorDiv.style.display = 'none';
+      otpErrorDiv.style.marginTop = '1rem';
+      form.appendChild(otpErrorDiv);
+    }
+    
+    try {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Verifying...";
+      otpErrorDiv.style.display = 'none';
+      
+      const otpInput = document.getElementById("otpValue") as HTMLInputElement;
+      const otp = otpInput ? otpInput.value : "";
+      const res = await fetch(`${API_BASE_URL}/api/auth/verify-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: signupEmail, otp })
+      });
+      
+      const data = await res.json();
+      if (res.ok) {
+        otpErrorDiv.textContent = data.message;
+        otpErrorDiv.style.color = 'green';
+        otpErrorDiv.style.display = 'block';
+        const otpSection = document.getElementById("otpSection");
+        if (otpSection) otpSection.style.display = "none";
+        const loginFormSection = document.getElementById("loginFormSection");
+        if (loginFormSection) loginFormSection.style.display = "block";
+      } else {
+        otpErrorDiv.textContent = data.message || "Verification failed";
+        otpErrorDiv.style.display = 'block';
+      }
+    } catch (error) {
+      console.error("OTP error:", error);
+      otpErrorDiv.textContent = "Could not connect to the server.";
+      otpErrorDiv.style.display = 'block';
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalBtnText;
+    }
+  });
+}
+
+if (loginForm) {
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = loginForm as HTMLFormElement;
+    const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const originalBtnText = submitBtn.textContent;
+    const errorDiv = document.getElementById('loginError') as HTMLElement;
+    
+    try {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Logging in...";
+      if (errorDiv) errorDiv.style.display = 'none';
+      
+      const email = (document.getElementById("loginEmail") as HTMLInputElement).value;
+      const password = (document.getElementById("loginPassword") as HTMLInputElement).value;
+
+      if (!validateEmail(email)) {
+        if (errorDiv) {
+          errorDiv.textContent = "Please enter a valid email address.";
+          errorDiv.style.display = 'block';
+        }
+        return;
+      }
+
+      const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      
+      const data = await res.json();
+      if (res.ok) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('username', data.username);
+        updateUI();
+        if (authModal) (authModal as HTMLElement).style.display = "none";
+        
+        // Check profile completion status after login
+        await window.checkProfileCompletion();
+      } else {
+        if (errorDiv) {
+          errorDiv.textContent = data.message || "Login failed";
+          errorDiv.style.display = 'block';
+        }
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      if (errorDiv) {
+        errorDiv.textContent = "Could not connect to the server.";
+        errorDiv.style.display = 'block';
+      }
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalBtnText;
+    }
+  });
+}
 
 const forgotPasswordForm = document.getElementById("forgotPasswordForm") as HTMLFormElement;
 const resetPasswordForm = document.getElementById("resetPasswordForm") as HTMLFormElement;
@@ -705,112 +734,144 @@ const forgotPasswordLink = document.getElementById("forgotPasswordLink") as HTML
 
 let resetEmail = "";
 
-forgotPasswordLink.onclick = (e) => {
-  e.preventDefault();
-  loginFormSection.style.display = "none";
-  document.getElementById("forgotPasswordSection")!.style.display = "block";
-};
+if (forgotPasswordLink) {
+  forgotPasswordLink.onclick = (e) => {
+    e.preventDefault();
+    if (loginFormSection) (loginFormSection as HTMLElement).style.display = "none";
+    const forgotPasswordSection = document.getElementById("forgotPasswordSection");
+    if (forgotPasswordSection) forgotPasswordSection.style.display = "block";
+  };
+}
 
 document.querySelectorAll(".back-to-login").forEach(btn => {
   (btn as HTMLElement).onclick = (e) => {
     e.preventDefault();
-    document.getElementById("forgotPasswordSection")!.style.display = "none";
-    loginFormSection.style.display = "block";
+    const forgotPasswordSection = document.getElementById("forgotPasswordSection");
+    if (forgotPasswordSection) forgotPasswordSection.style.display = "none";
+    if (loginFormSection) (loginFormSection as HTMLElement).style.display = "block";
   };
 });
 
-forgotPasswordForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const submitBtn = forgotPasswordForm.querySelector('button[type="submit"]') as HTMLButtonElement;
-  const originalBtnText = submitBtn.textContent;
-  const errorDiv = document.getElementById('forgotError') as HTMLElement;
-  
-  try {
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Sending...";
-    errorDiv.style.display = 'none';
+if (forgotPasswordForm) {
+  forgotPasswordForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = forgotPasswordForm as HTMLFormElement;
+    const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const originalBtnText = submitBtn.textContent;
+    const errorDiv = document.getElementById('forgotError') as HTMLElement;
     
-    resetEmail = (document.getElementById("resetEmail") as HTMLInputElement).value;
+    try {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Sending...";
+      if (errorDiv) errorDiv.style.display = 'none';
+      
+      const resetEmailInput = document.getElementById("resetEmail") as HTMLInputElement;
+      resetEmail = resetEmailInput ? resetEmailInput.value : "";
 
-    if (!validateEmail(resetEmail)) {
-      errorDiv.textContent = "Please enter a valid email address.";
-      errorDiv.style.display = 'block';
-      return;
+      if (!validateEmail(resetEmail)) {
+        if (errorDiv) {
+          errorDiv.textContent = "Please enter a valid email address.";
+          errorDiv.style.display = 'block';
+        }
+        return;
+      }
+
+      const res = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: resetEmail })
+      });
+      
+      const data = await res.json();
+      if (res.ok) {
+        if (errorDiv) {
+          errorDiv.textContent = data.message;
+          errorDiv.style.color = 'green';
+          errorDiv.style.display = 'block';
+        }
+        const forgotPasswordSection = document.getElementById("forgotPasswordSection");
+        if (forgotPasswordSection) forgotPasswordSection.style.display = "none";
+        const resetPasswordSection = document.getElementById("resetPasswordSection");
+        if (resetPasswordSection) resetPasswordSection.style.display = "block";
+      } else {
+        if (errorDiv) {
+          errorDiv.textContent = data.message || "Failed to send reset OTP";
+          errorDiv.style.display = 'block';
+        }
+      }
+    } catch (error) {
+      console.error("Forgot password error:", error);
+      if (errorDiv) {
+        errorDiv.textContent = "Could not connect to the server.";
+        errorDiv.style.display = 'block';
+      }
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalBtnText;
     }
+  });
+}
 
-    const res = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: resetEmail })
-    });
+if (resetPasswordForm) {
+  resetPasswordForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = resetPasswordForm as HTMLFormElement;
+    const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const originalBtnText = submitBtn.textContent;
+    const errorDiv = document.getElementById('resetError') as HTMLElement;
     
-    const data = await res.json();
-    if (res.ok) {
-      errorDiv.textContent = data.message;
-      errorDiv.style.color = 'green';
-      errorDiv.style.display = 'block';
-      document.getElementById("forgotPasswordSection")!.style.display = "none";
-      document.getElementById("resetPasswordSection")!.style.display = "block";
-    } else {
-      errorDiv.textContent = data.message || "Failed to send reset OTP";
-      errorDiv.style.display = 'block';
-    }
-  } catch (error) {
-    console.error("Forgot password error:", error);
-    errorDiv.textContent = "Could not connect to the server.";
-    errorDiv.style.display = 'block';
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = originalBtnText;
-  }
-});
+    try {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Resetting...";
+      if (errorDiv) errorDiv.style.display = 'none';
+      
+      const otpInput = document.getElementById("resetOtpValue") as HTMLInputElement;
+      const otp = otpInput ? otpInput.value : "";
+      const passwordInput = document.getElementById("newPassword") as HTMLInputElement;
+      const password = passwordInput ? passwordInput.value : "";
 
-resetPasswordForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const submitBtn = resetPasswordForm.querySelector('button[type="submit"]') as HTMLButtonElement;
-  const originalBtnText = submitBtn.textContent;
-  const errorDiv = document.getElementById('resetError') as HTMLElement;
-  
-  try {
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Resetting...";
-    errorDiv.style.display = 'none';
-    
-    const otp = (document.getElementById("resetOtpValue") as HTMLInputElement).value;
-    const password = (document.getElementById("newPassword") as HTMLInputElement).value;
+      if (!validatePassword(password)) {
+        if (errorDiv) {
+          errorDiv.textContent = "Password does not meet all requirements. Please check the boxes below.";
+          errorDiv.style.display = 'block';
+        }
+        return;
+      }
 
-    if (!validatePassword(password)) {
-      errorDiv.textContent = "Password does not meet all requirements. Please check the boxes below.";
-      errorDiv.style.display = 'block';
-      return;
+      const res = await fetch(`${API_BASE_URL}/api/auth/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: resetEmail, otp, password })
+      });
+      
+      const data = await res.json();
+      if (res.ok) {
+        if (errorDiv) {
+          errorDiv.textContent = data.message;
+          errorDiv.style.color = 'green';
+          errorDiv.style.display = 'block';
+        }
+        const resetPasswordSection = document.getElementById("resetPasswordSection");
+        if (resetPasswordSection) resetPasswordSection.style.display = "none";
+        if (loginFormSection) (loginFormSection as HTMLElement).style.display = "block";
+      } else {
+        if (errorDiv) {
+          errorDiv.textContent = data.message || "Reset failed";
+          errorDiv.style.display = 'block';
+        }
+      }
+    } catch (error) {
+      console.error("Reset password error:", error);
+      if (errorDiv) {
+        errorDiv.textContent = "Could not connect to the server.";
+        errorDiv.style.display = 'block';
+      }
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalBtnText;
     }
-
-    const res = await fetch(`${API_BASE_URL}/api/auth/reset-password`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: resetEmail, otp, password })
-    });
-    
-    const data = await res.json();
-    if (res.ok) {
-      errorDiv.textContent = data.message;
-      errorDiv.style.color = 'green';
-      errorDiv.style.display = 'block';
-      document.getElementById("resetPasswordSection")!.style.display = "none";
-      loginFormSection.style.display = "block";
-    } else {
-      errorDiv.textContent = data.message || "Reset failed";
-      errorDiv.style.display = 'block';
-    }
-  } catch (error) {
-    console.error("Reset password error:", error);
-    errorDiv.textContent = "Could not connect to the server.";
-    errorDiv.style.display = 'block';
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = originalBtnText;
-  }
-});
+  });
+}
 
 
 
