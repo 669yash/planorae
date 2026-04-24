@@ -20,7 +20,7 @@ load_dotenv()
 from functools import wraps
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": ["http://localhost:5173", "https://planorae12.vercel.app"]}}) # Replace with your actual Vercel URL later
+CORS(app, resources={r"/api/*": {"origins": ["http://localhost:5173", "https://planorae.vercel.app", "https://planorae12.vercel.app"]}}) # Replace with your actual Vercel URL later
 
 # Configuration
 app.config['SECRET_KEY'] = os.getenv('JWT_SECRET', 'fallback_secret')
