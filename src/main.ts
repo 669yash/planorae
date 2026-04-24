@@ -530,7 +530,7 @@ if (window.location.hash === '#signup') {
 
 if (profileBtn) {
   (profileBtn as HTMLElement).onclick = () => {
-    window.location.href = 'src/profile.html';
+    window.location.href = '/profile.html';
   };
 }
 
