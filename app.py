@@ -22,7 +22,14 @@ from functools import wraps
 app = Flask(__name__)
 CORS(app, resources={
     r"/api/*": {
-        "origins": ["https://planorae.vercel.app", "http://localhost:5173"]
+        "origins": [
+            "https://planorae.vercel.app", 
+            "https://planorae12.vercel.app",
+            "http://localhost:5173",
+            re.compile(r"https://.*\.vercel\.app")
+        ],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"]
     }
 })
 
