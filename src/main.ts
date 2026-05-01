@@ -59,7 +59,9 @@ if (appDiv) {
   appDiv.innerHTML = `
 <header class="site-header" id="header">
   <div class="container nav-wrap">
-    <a href="#home" class="brand">Planorae</a>
+    <a href="#home" class="brand">
+      <img src="/logo.png" alt="Planorae Logo" class="logo-img">
+    </a>
     
     <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-label="Open menu">
       <span></span>
@@ -198,7 +200,9 @@ if (appDiv) {
 <footer class="site-footer">
   <div class="container footer-wrap">
     <div>
-      <a href="#home" class="brand footer-brand">Planorae</a>
+      <a href="#home" class="brand footer-brand">
+        <img src="/logo.png" alt="Planorae Logo" class="logo-img footer-logo-img">
+      </a>
       <p>Travel Together. Live Better.</p>
     </div>
     <p>© 2025 Planorae. All rights reserved.</p>

@@ -45,15 +45,13 @@ a {
   inset: 0 0 auto 0;
   z-index: 1000;
   transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: #F7F5EA; /* Updated to match logo background color */
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .site-header.scrolled {
-  background: rgba(255, 255, 255, 0.96);
+  background: #F7F5EA;
   box-shadow: 0 10px 26px rgba(26, 58, 92, 0.14);
 }
 
@@ -100,10 +98,19 @@ a {
 }
 
 .brand {
-  font-family: "Pacifico", cursive;
-  font-size: 2rem;
-  font-weight: 400;
-  color: var(--crimson);
+  display: flex;
+  align-items: center;
+}
+
+.logo-img {
+  height: clamp(32px, 5vw, 42px);
+  width: auto;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.brand:hover .logo-img {
+  transform: scale(1.05);
 }
 
 .site-nav {
@@ -1023,8 +1030,12 @@ body.modal-open {
 }
 
 .footer-brand {
-  color: var(--coral);
-  font-family: "Pacifico", cursive;
+  display: block;
+}
+
+.footer-logo-img {
+  height: 40px;
+  width: auto;
 }
 
 @media (min-width: 768px) {
